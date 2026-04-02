@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head><meta charset="utf-8"><meta content="IE=edge" http-equiv="X-UA-Compatible"><meta content="width=device-width,initial-scale=1" name="viewport"><title>Inventário de Servidores - Claro Empresas</title><link href="https://mondrian.claro.com.br/fonts/mondrian-fonts-latest.css" rel="stylesheet"><style>
+</style><script defer="defer"src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script><link rel="stylesheet" href="css/base.css"><meta content="Inventário de Servidores - Claro Empresas."name="description"><meta content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://mondrian.claro.com.br; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self'; frame-src 'self' blob: data:;"http-equiv="Content-Security-Policy"></head>
+<body>
+<div id="menu"><header><h1 class="sr-only">Inventário de Servidores - Claro Empresas</h1><div class="inner"><div class="header-left"></div><div class="header-center"><img alt="Claro Empresas"class="logo-img"loading="lazy"src="img_2.png"> <span class="header-subtitle">Menu Principal</span></div><div class="header-right"><button class="btn-dark"onclick="toggleDark()"type="button">Tema</button> <button class="btn-exit"onclick="logout()"type="button">Sair</button></div></div></header><div class="cards-grid"><div class="card"id="menuInventario"><h3>Inventário</h3><p>Acessar gerenciamento de servidores</p><button class="btn-add"onclick="abrirPainel()"type="button">Entrar</button></div><div class="card"id="menuAuditoria"><h3>Auditoria</h3><p>Visualizar logs do sistema</p><button class="btn-edit"onclick="abrirAuditoria()"type="button">Visualizar</button></div><div class="card"id="menuBase"><h3>Base de Conhecimento</h3><p>Documentos e PDFs</p><button class="btn-excel"onclick="abrirBase()"type="button">Abrir</button></div><div class="card"id="menuFitas"><h3>Fitas Backup</h3><p>Controle e inventário de fitas de backup</p><button class="btn-warning"onclick="abrirFitas()"type="button">Acessar</button></div><div class="card"id="menuDesembalagem"><h3>Desembalagem</h3><p>Registro de entrada, saída e coleta de caixas</p><button class="btn-add"onclick="abrirDesembalagem()"type="button">Acessar</button></div><div class="card"id="menuOperacoes"><h3>Operações</h3><p>Bayface</p><button class="btn-add"onclick="abrirOperacoes()"type="button">Acessar</button></div><div class="card"id="menuDescarte"><h3>Descarte</h3><p>Registro de equipamentos para descarte</p><button class="btn-del"onclick="abrirDescarte()"type="button">Acessar</button></div><div class="card" id="menuDashboard" style="border-top:3px solid var(--primary)"><h3>📊 Dashboard</h3><p>Visão geral corporativa do inventário</p><button class="btn-add" onclick="abrirDashboardCorp()" type="button">Acessar</button></div></div></div><div id="painel"style="display:none"><header><div class="inner"><div class="header-left"></div><div class="header-center"><img alt="Claro Empresas"class="logo-img"loading="lazy"src="img_2.png"> <span class="header-subtitle"id="painelSubtitle">Inventário</span></div><div class="header-right"><span class="user-area"id="userInfo"></span> <button class="btn-dark"onclick="toggleDark()"type="button">Tema</button> <button class="btn-clear"onclick="voltarMenu()"type="button">Menu</button> <button class="btn-exit"onclick="logout()"type="button">Sair</button></div></div></header><div class="page-wrap"style="max-width:var(--container-max);margin:0 auto;padding:0 var(--container-pad) 32px"><section id="corpDashboard" style="display:none">
+  <div class="corp-dash-wrap">
+
+    <div class="corp-dash-header">
+      <div>
+        <h2 class="corp-dash-title">Dashboard Corporativo</h2>
+        <p class="corp-dash-sub">Visão consolidada em tempo real · atualizado ao abrir</p>
+        <span id="corpMockBadge" class="corp-mock-badge" style="display:none">⚠️ Exibindo dados de exemplo</span>
+      </div>
+      <div class="corp-dash-actions">
+        <button class="btn-add" onclick="renderCorpDashboard()" type="button">↺ Atualizar</button>
+      </div>
+    </div>
+
+    <!-- MODULE: Inventário -->
+    <div class="dash-module-label">
+      <div class="dml-icon" style="background:rgba(31,58,95,.12);color:#1F3A5F">🖥️</div>
+      <span class="dml-text">Inventário de Servidores</span>
+    </div>
+    <div id="corpDashStats" class="corp-kpi-grid"></div>
+    <div class="corp-charts-grid corp-charts-3">
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Servidores por Fornecedor</span>
+          <span class="corp-chart-badge" id="badgeFornecedor">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartFornecedor"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Status de Garantia</span>
+          <span class="corp-chart-badge" id="badgeGarantia">—</span>
+        </div>
+        <div id="corpGarProgresso" class="corp-prog-wrap"></div>
+        <div class="corp-chart-body"><canvas id="chartGarantia"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Servidores por Localidade</span>
+          <span class="corp-chart-badge" id="badgeLocal">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartLocal"></canvas></div>
+      </div>
+    </div>
+
+    <!-- MODULE: Robô de Fitas -->
+    <div class="dash-module-label">
+      <div class="dml-icon" style="background:rgba(31,58,95,.12);color:#1F3A5F">🤖</div>
+      <span class="dml-text">Robô de Fitas</span>
+    </div>
+    <div id="corpRoboKpis" class="corp-kpi-grid"></div>
+    <div class="corp-charts-grid corp-charts-3">
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Fitas por Status</span>
+          <span class="corp-chart-badge" id="badgeFitas">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartFitas"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Descartes por Tipo</span>
+          <span class="corp-chart-badge" id="badgeDescarte">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartDescarte"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Desembalagem por Categoria</span>
+          <span class="corp-chart-badge" id="badgeDesemb">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartDesemb"></canvas></div>
+      </div>
+    </div>
+
+    <!-- MODULE: ConnMap -->
+    <div class="dash-module-label">
+      <div class="dml-icon" style="background:rgba(31,58,95,.12);color:#1F3A5F">🗺️</div>
+      <span class="dml-text">ConnMap — De/Para</span>
+    </div>
+    <div id="corpConnMapKpis" class="corp-kpi-grid"></div>
+    <div class="corp-charts-grid corp-charts-3">
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Registros por Fabricante</span>
+          <span class="corp-chart-badge" id="badgeConnMap">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartConnMap"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Distribuição de Sentido</span>
+          <span class="corp-chart-badge" id="badgeConnDir">—</span>
+        </div>
+        <div id="corpConnProgresso" class="corp-prog-wrap"></div>
+        <div class="corp-chart-body"><canvas id="chartConnDir"></canvas></div>
+      </div>
+      <div class="corp-chart-card">
+        <div class="corp-chart-header">
+          <span class="corp-chart-title">Registros por Interface</span>
+          <span class="corp-chart-badge" id="badgeConnIface">—</span>
+        </div>
+        <div class="corp-chart-body"><canvas id="chartConnIface"></canvas></div>
+      </div>
+    </div>
+
+  </div>
+</section><section id="inventario" style="padding-top:24px"><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Adicionar / Editar Servidor</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleForm"onclick="toggleFormulario()"type="button">➕ Novo Servidor</button><div style="display:flex;gap:8px"><button class="btn-add"onclick="add()"type="button">Adicionar</button> <button class="btn-excel"onclick="exportar()"type="button">Exportar Excel</button> <button class="btn-clear"onclick="form.reset(),editIndex=null"type="button">Limpar</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="inventario_search"oninput="filtrar(this.value)"onkeydown='"Escape"===event.key&&(this.value="",filtrar(""))'placeholder="Pesquisar..."></div><div id="formularioWrapper"style="display:none"><form id="form"style="margin:0"><div class="grid"><input id="local"placeholder="Local*"> <input id="ambiente"placeholder="Ambiente"> <input id="rack"placeholder="Rack"> <input id="posicao"placeholder="Posição"> <input id="andar"placeholder="Andar"> <input id="serial"placeholder="Serial *"> <input id="fornecedor"placeholder="Fornecedor"> <input id="modelo"placeholder="Modelo"> <input id="geracao"placeholder="Geração"> <input id="tipo"placeholder="Tipo"> <input id="baia"placeholder="Baia"> <input id="frame"placeholder="Frame"> <input id="cmdb"placeholder="CMDB"> <input id="ip"placeholder="IP Gerência*"> <input id="hosts"placeholder="Hosts"> <input id="so"placeholder="SO"> <input id="cpu"placeholder="CPU"> <input id="memoria"placeholder="Memória"> <input id="storage"placeholder="Armazenamento"> <input id="firmware_aplicada"placeholder="Firmware Aplicada"> <input id="firmware_disponivel"placeholder="Firmware Disponível"> <input id="bios_aplicada"placeholder="BIOS Aplicada"> <input id="bios_disponivel"placeholder="BIOS Disponível"> <input id="eol"placeholder="EOL"> <input id="eos"placeholder="EOS"> <input id="inicioGarantia"type="date"> <input id="fimGarantia"type="date"> <input id="pedido"placeholder="Pedido"> <input id="cgc"placeholder="CGC"> <input id="dominio"placeholder="Domínio"> <input id="cofre"placeholder="Cofre"></div></form><div class="section-actions"style="margin-top:12px"></div></div></div><span id="dashTotal" style="display:none">0</span>
+<span id="dashAtivos" style="display:none">0</span>
+<span id="dashGarantia" style="display:none">0</span>
+<span id="dashEol" style="display:none">0</span>
+<span id="dashEos" style="display:none">0</span>
+<div id="dashFornecedor" style="display:none"></div><div class="table-wrap"id="inventario_table_wrap"><table id="tabela"><thead><tr><th>Local<th>Ambiente<th>Rack<th>Pos<th>Andar<th>Serial<th>Fornecedor<th>Modelo<th>Geração<th>Tipo<th>Baia<th>Frame<th>CMDB<th>IP<th>Hosts<th>SO<th>CPU<th>Mem<th>Disco<th>Firmware Aplicada<th>Firmware Disponível<th>BIOS Aplicada<th>BIOS Disponível<th>EOL<th>EOS<th>Início<th>Fim<th>Dias p/ Venc.<th>Pedido<th>CGC<th>Domínio<th>Cofre<th>Status<th>Ações<tbody></table></div></section><section id="auditoria"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Auditoria</h3></div><div class="table-wrap"><table><thead><tr><th>Usuário<th>Ação<th>Detalhes<th>Data<th style="text-align:right"><div style="display:flex;gap:8px;justify-content:flex-end;align-items:center"><button class="btn-excel" id="btnExportLogs" onclick="exportarLogsExcel()" style="display:none" type="button">Exportar Excel</button><button class="btn-clear" id="btnLimparLogs" onclick="limparLogs()" style="display:none" type="button">Limpar Logs</button></div><tbody id="logTabela"></table></div></section><section id="baseConhecimento" style="margin:20px 0"><h3>Base de Conhecimento (PDF)</h3><br><div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><input accept="application/pdf" id="pdfUpload" type="file"><button class="btn-add" onclick="salvarPDF()" type="button">Salvar PDF</button></div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>Data</th><th>Ações</th></tr></thead><tbody id="listaPDF"></tbody></table></div></section><section id="fitasBackup"style="display:none"><h3 class="section-title">Fitas de Backup</h3><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Adicionar/Editar Fita</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleFitas"onclick="toggleFitas()"type="button">➕ Nova Fita</button><div style="display:flex;gap:8px"><button class="btn-add"onclick="addFita()"type="button">Adicionar</button> <button class="btn-warning"onclick="gerarDeclaracaoTransporte()"type="button">📋 Declaração de Transportes de fita</button> <button class="btn-clear"onclick='document.getElementById("formFitas").reset(),editFitaIndex=null'type="button">Limpar</button> <button class="btn-robo"onclick="abrirRobo()"type="button">Robô</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="fitas_search"oninput="filtrarFitas(this.value)"onkeydown='"Escape"===event.key&&(this.value="",filtrarFitas(""))'placeholder="Pesquisar..."></div><div id="formFitasWrapper"style="display:none"><form id="formFitas"style="margin:0"><div class="grid"><input id="fitagaveta"placeholder="Gaveta"> <input id="fitaCodigo"placeholder="Código da Fita"> <input id="fitaTipo"placeholder="Tipo (LTO, DAT...)"> <input id="fitaCapacidade"placeholder="Capacidade"> <input id="fitaLocal"placeholder="Localização"> <input id="fitaStatus"placeholder="Status"></div></form><div class="section-actions"style="margin-top:12px"></div></div><div class="table-wrap"style="margin-top:12px"><table><thead><tr><th>Gaveta<th>Código<th>Tipo<th>Capacidade<th>Local<th>Status<th>Ações<tbody id="tabelaFitas"></table></div></div></section><section id="desembalagem"style="display:none"><h3 class="section-title">Desembalagem - DC Lapa</h3><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Entrada</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleEntrada"onclick='toggleDesemb("formEntradaWrapper","btnToggleEntrada")'type="button">➕ Registrar Entrada</button><div style="display:flex;gap:8px"><button class="btn-excel"onclick="exportarDesembEntradaExcel()"type="button">Exportar Excel</button> <button class="btn-add"onclick="desembSalvarEntrada()"type="button">Salvar Entrada</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="desemb_entrada_search"onkeyup="desembFiltrarEntrada(this.value)"placeholder="Buscar (caixa, setor, cliente, NF, RMA, responsável)..."></div><div id="formEntradaWrapper"style="display:none"><div class="grid"><input id="de_caixa"placeholder="Caixa"> <select id="de_setor"onchange="desembToggleArmario()"><option value="">Setor...<option>ARMARIO<option>PISO</select> <input id="de_armario"placeholder="Armário"style="display:none"> <input id="de_cliente"placeholder="Cliente"> <input id="de_nota"placeholder="Nota Fiscal"> <input id="de_rma"placeholder="RMA / W.O"> <input id="de_chave"placeholder="Chave de Acesso"> <input id="de_volumes"placeholder="Volumes"></div><br><input id="de_descricao"placeholder="Descrição"style="width:100%"> <input accept="image/*"id="de_foto"style="display:none"type="file"></div><div class="table-wrap"><table><thead><tr><th>Caixa<th>Setor<th>Armário<th>Cliente<th>NF<th>RMA<th>Chave<th>Volumes<th>Descrição<th>Responsável<th>Foto<th>Evidências<th>Ação<tbody id="tabelaDesembEntrada"></table></div></div><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Saída</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleSaida"onclick='toggleDesemb("formSaidaWrapper","btnToggleSaida")'type="button">➕ Registrar Saída</button><div style="display:flex;gap:8px"><button class="btn-excel"onclick="exportarDesembSaidaExcel()"type="button">Exportar Excel</button> <button class="btn-add"onclick="desembSalvarSaida()"type="button">Registrar Saída</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="desemb_saida_search"onkeyup="desembFiltrarSaida(this.value)"placeholder="Buscar (caixa, responsável, motivo)..."></div><div id="formSaidaWrapper"style="display:none"><div class="grid"><input id="ds_caixa"placeholder="Caixa"> <input id="ds_responsavel"placeholder="Responsável"> <select id="ds_motivo"><option value="">Motivo...<option>BAIXA/DESCARTE<option>TRANSFERÊNCIA</select></div><input accept="image/*"id="ds_foto"style="display:none"type="file"></div><div class="table-wrap"><table><thead><tr><th>Caixa<th>Responsável<th>Motivo<th>Data<th>Foto<th>Evidências<th>Ação<tbody id="tabelaDesembSaida"></table></div></div><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Coleta</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleColeta"onclick='toggleDesemb("formColetaWrapper","btnToggleColeta")'type="button">➕ Registrar Coleta</button><div style="display:flex;gap:8px"><button class="btn-excel"onclick="exportarDesembColetaExcel()"type="button">Exportar Excel</button> <button class="btn-add"onclick="desembSalvarColeta()"type="button">Registrar Coleta</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="desemb_coleta_search"onkeyup="desembFiltrarColeta(this.value)"placeholder="Buscar (caixa, responsável, situação)..."></div><div id="formColetaWrapper"style="display:none"><div class="grid"><input id="dc_caixa"placeholder="Caixa"> <input id="dc_responsavel"placeholder="Responsável"> <select id="dc_situacao"><option value="">Situação...<option>COLETADO<option>PENDENTE</select></div><input accept="image/*"id="dc_foto"style="display:none"type="file"></div><div class="table-wrap"><table><thead><tr><th>Caixa<th>Responsável<th>Situação<th>Data<th>Foto<th>Evidências<th>Ação<tbody id="tabelaDesembColeta"></table></div></div></section><section id="operacoes"style="display:none"><h3 class="section-title">Operações</h3><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Bayface</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleOp"onclick='toggleOp("formOpWrapper","btnToggleOp")'type="button">➕ Adicionar Relação</button><div style="display:flex;gap:8px"><button class="btn-add"onclick="opAdd()"type="button">Adicionar</button> <button class="btn-excel"onclick="exportarOperacoesExcel()"type="button">Exportar Excel</button> <button class="btn-clear"onclick="opFormReset()"type="button">Limpar</button> <button class="btn-robo"onclick="abrirConnMap()"type="button">ConnMap</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="operacoes_search"onkeyup="opFiltrar(this.value)"placeholder="Buscar..."></div><div id="formOpWrapper"style="display:none"><div class="grid"><input id="op_cliente"placeholder="Cliente"> <input id="op_local"placeholder="Local"> <input id="op_posicao"placeholder="Posição"><div id="op_posicoes_wrap" style="display:contents"></div> <input id="op_equip"placeholder="Equipamento"> <input id="op_fabricante"placeholder="Fabricante"> <input id="op_modelo"placeholder="Modelo"> <input id="op_serial"placeholder="Serial"> <input id="op_hostname"placeholder="Hostname"> <input id="op_obs"placeholder="Observação"></div><div class="section-actions"style="margin-top:12px"></div></div><div class="table-wrap"style="margin-top:4px"><table id="op_tabela1"><thead><tr><th>Cliente<th>Local<th>Posição<th>Equipamento<th>Fabricante<th>Modelo<th>Serial<th>Hostname<th>Observação<th>Ações<tbody></table></div></div><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Documentos (PDF) — Operações</h4><button class="btn-dark"id="btnToggleOpPdf"onclick='toggleOp("formOpPdfWrapper","btnToggleOpPdf")'type="button">➕ Inserir PDF</button></div><div id="formOpPdfWrapper"style="display:none"><p style="margin:0 0 8px;color:var(--sub);font-size:13px">Anexe documentação relacionada às ligações.<div class="section-actions"><input accept="application/pdf"id="op_pdf"style="flex:1;min-width:0"type="file"> <button class="btn-add"onclick="opSalvarPDF()"type="button">Enviar PDF</button></div></div><div class="table-wrap"style="margin-top:12px"><table><thead><tr><th>Nome<th>Data<th>Ações<tbody id="op_listaPDF"></table></div></div></section><section id="connmapSec"style="display:none"><h3 class="section-title">ConnMap — De/Para</h3><span id="kpiTotal" style="display:none">0</span>
+<span id="kpiFiltradas" style="display:none">0</span>
+<span id="kpiA" style="display:none">0</span>
+<span id="kpiB" style="display:none">0</span><div class="card section-card"><div class="flex-sb-10"><button class="btn-dark"id="cm_toggleFormBtn"onclick='const f=document.querySelector(".cm-form-grid"),hidden="none"===f.style.display||""===f.style.display;f.style.display=hidden?"grid":"none",this.textContent=hidden?"✖ Fechar Formulário":"➕ Novo Registro"'type="button">➕ Novo Registro</button><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-add"id="cm_addBtn"type="button">Adicionar</button> <button class="btn-clear"id="cm_resetBtn"type="button">Limpar formulário</button> <button class="btn-clear"onclick='mostrarAba("operacoes")'type="button">← Voltar</button> <button class="btn-excel"id="cm_exportExcelBtn"type="button">Exportar Excel</button> <button class="btn-dark"id="cm_exportPdfBtn"type="button">Exportar PDF</button> <input accept=".csv,.json"id="cm_importFile"style="display:none"type="file"></div></div><div style="position:relative;margin-bottom:12px"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#6b7280;pointer-events:none">🔍</span> <input id="cm_searchBox"placeholder="Pesquisar..."style="padding-left:32px;width:100%"></div><div class="cm-form-grid"style="display:none"><div class="cm-col-2"><label>Rack</label><input id="cm_rack"placeholder="A01"></div><div class="cm-col-3"><label>Dispositivo</label><input id="cm_device"placeholder="SW, PATCH..."></div><div class="cm-col-3"><label>Fabricante</label><input id="cm_vendor"placeholder="Cisco, HP..."></div><div class="cm-col-4"><label>Hostname</label><input id="cm_hostname"placeholder="sw-core-01"></div><div class="cm-col-2"><label>DIO</label><select id="cm_dio"><option value="">—</option></select></div><div class="cm-col-2"><label>MOD</label><select id="cm_mod"><option value="">—</option></select></div><div class="cm-col-2"><label>PP</label><input id="cm_pp"placeholder="Patch Panel"></div><div class="cm-col-2"><label>FL</label><input id="cm_fl"placeholder="Fibra"></div><div class="cm-col-2"><label>DG</label><input id="cm_dg"placeholder="DG"></div><div class="cm-col-2"><label>BT</label><input id="cm_bt"placeholder="BT"></div><div class="cm-col-2"><label>SH</label><input id="cm_sh"placeholder="SH"></div><div class="cm-col-2"><label>BL</label><input id="cm_bl"placeholder="BL"></div><div class="cm-col-2"><label>Interface</label> <select id="cm_iface"><option value="">—</option><option>UTP</option><option>MULT</option><option>MONO</option></select></div><div class="cm-col-2"><label>Porta</label><input id="cm_port"placeholder="01"></div><div class="cm-col-2"><label>Sentido</label> <select id="cm_direction"><option value="">—</option><option value="A">A</option><option value="B">B</option></select></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:var(--sub)"><span>Linhas totais: <strong id="cm_rowCount">0</strong></span> <span>Após filtro: <strong id="cm_rowCountFiltered">0</strong></span></div><div class="table-wrap"><table id="cm_mapTable"><thead><tr><th>Rack<th>Dispositivo<th>Fabricante<th>Hostname<th>DIO<th>MOD<th>PP<th>Interface<th>Porta<th>Sentido<th>FL<th>DG<th>BT<th>SH<th>BL<th>Evidências<th>Ações<tbody></table></div></div></section><section id="roboFitas"style="display:none"><h3 class="section-title">Movimentação de Fitas — Robô</h3><span id="robo_totalReg" style="display:none">0</span>
+<span id="robo_pendentes" style="display:none">0</span>
+<span id="robo_concluidas" style="display:none">0</span>
+<span id="robo_canceladas" style="display:none">0</span><div class="main-card"><div class="toolbar"><div class="field"><label>Ticket</label> <input id="robo_ticket"placeholder="Número do ticket *"required=""></div><div class="field"><label>Responsável</label> <input id="robo_resp"value="Alexandre Edson De Lima"></div><div class="toolbar-right"><button class="btn-add"onclick="roboSalvar()"type="button">💾 Salvar</button> <button class="btn-warning"onclick="roboLoad()"type="button">📂 Carregar</button> <button class="btn-clear"onclick='mostrarAba("fitas")'type="button">← Voltar</button> <button class="btn-excel"onclick="roboExportar()"type="button">📤 Excel</button> <button class="btn-dark"onclick="window.print()"type="button">🖨️ PDF</button> <button class="btn-add"id="robo_btnAdd"onclick="roboAdicionarLinha()"type="button">+</button> <button class="btn-clear"id="robo_btnRem"onclick="roboRemoverUltima()"type="button">–</button><div class="counter"id="robo_counter">0 / 26</div></div></div><div class="table-wrap"style="margin:0;border-radius:0"><table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr><th>ID Fita<th>Ação<th>Data<th>Hora<th>Observação<th>Status<th>Ações<tbody id="robo_tbody"></table></div></div></section><section id="descarte"style="display:none"><h3 class="section-title">Descarte de Equipamentos</h3><div class="card section-card"><div class="flex-sb-12"><h4 style="margin:0">Registro</h4></div><div class="flex-sb-10"><button class="btn-dark"id="btnToggleDescarte"onclick="dscToggleForm()"type="button">➕ Novo Registro</button><div style="display:flex;gap:8px"><button class="btn-excel"onclick="dscExportarExcel()"type="button">Exportar Excel</button> <button class="btn-add"onclick="dscRegistrar()"type="button">Salvar Registro</button></div></div><div class="search-wrap"><span class="search-icon">🔍</span> <input class="search-input"id="dsc_search"onkeyup="dscFiltrar(this.value)"placeholder="Buscar (solicitante, descrição, serial, SGP, motivo)..."></div><div id="formDescarteWrapper"style="display:none"><div class="grid"><input id="dsc_solicitante"placeholder="Solicitante"> <input id="dsc_centro"placeholder="Centro (Custo/Unidade)"> <select id="dsc_tipo"><option value="Usado">Usado<option value="Novo">Novo</select> <input id="dsc_local"placeholder="Localização Atual"> <input id="dsc_motivo"placeholder="Motivo do Descarte"> <input id="dsc_descricao"placeholder="Descrição do Item"> <input id="dsc_marca"placeholder="Marca"> <input id="dsc_modelo"placeholder="Modelo"> <input id="dsc_serial"placeholder="Serial Number (S/N)"> <input id="dsc_partnumber"placeholder="Part Number (P/N)"> <input id="dsc_sgp"placeholder="SGP (Patrimônio)"></div><br><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:13px;color:var(--sub);font-weight:600">IDs Extras (MAC, IMEI...)</span> <button class="btn-dark"onclick="dscAddCampo()"style="padding:2px 10px;min-height:unset;font-size:13px"type="button">+</button></div><div id="dsc_extras"></div><br></div><div class="table-wrap"><table><thead><tr><th>#<th>Data<th>Solicitante<th>Descrição<th>Marca<th>Modelo<th>Serial<th>SGP<th>Motivo<th>IDs Extras<th>Evidências<th>Ações<tbody id="dsc_tbody"></table></div></div></section></div><div id="modalPDF"><div style="display:flex;flex-direction:column;height:100%"><div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:6px 8px 8px"><button class="btn-dark"id="btnAbrirNovaAba"onclick="abrirPDFNovaAba()"type="button">↗ Abrir em nova aba</button><button class="btn-del"onclick="fecharPDF()"type="button">✕ Fechar</button></div><iframe frameborder="0"id="pdfViewer"loading="lazy"style="flex:1;width:100%;border:none;border-radius:6px"></iframe></div></div><div id="modalEvSelect"><div class="ev-box"style="max-width:480px"><h3>📎 Selecionar Registro para Evidência</h3><p style="font-size:13px;color:var(--sub);margin:0 0 12px">Escolha o item ao qual deseja vincular as evidências:<div id="evSelectList"style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div><div class="ev-footer"style="margin-top:14px"><button class="btn-del"onclick='document.getElementById("modalEvSelect").classList.remove("open")'type="button">Cancelar</button></div></div></div><div id="modalEvidencias"><div class="ev-box"><h3>📎 Evidências do Registro</h3><div class="ev-drop-zone"id="evDropZone"onclick='document.getElementById("evFileInput").click()'><div style="font-size:28px;margin-bottom:6px">📁</div>Clique ou arraste imagens / PDFs aqui</div><input accept="image/*,application/pdf"id="evFileInput"multiple=""onchange="evHandleFiles(this.files)"style="display:none"type="file"><div class="ev-preview-grid"id="evPreviewGrid"></div><div class="ev-footer"><button class="btn-del"onclick="evFechar()"type="button">Cancelar</button> <button class="btn-add"onclick="evSalvar()"type="button">💾 Salvar Evidências</button></div></div></div><div id="evLightbox"><button class="lb-close"onclick="evLightboxClose()"type="button">✕</button> <img alt=""id="evLightboxImg"loading="lazy"src=""style="display:none"><div id="evLightboxPdf"style="display:none;color:#fff;font-size:48px;text-align:center">📄<br><span id="evLightboxName"style="font-size:16px"></span><br><a href="#"id="evLightboxLink"role="button"style="font-size:13px;color:#aef"tabindex="0"target="_blank">Abrir arquivo</a></div><div class="lb-nav"><button onclick="evLightboxNav(-1)"type="button">◀ Anterior</button> <button onclick="evLightboxNav(1)"type="button">Próxima ▶</button> <button onclick="evLightboxClose()"type="button">Fechar</button></div></div>
+<!-- MODAL DECLARAÇÃO DE TRANSPORTE DE FITAS -->
+<div id="modalDeclaracao">
+  <div class="decl-box" style="position:relative">
+    <!-- TOP BAR -->
+    <div class="decl-topbar">
+      <div>
+        <div class="decl-topbar-title" style="font-size:16px;font-weight:700">📦 Declaração de Transporte de Fitas LTO</div>
+        <div class="decl-subtitle">Claro Empresas — Logística / Data Center</div>
+      </div>
+      <div class="decl-topbar-actions">
+        <button class="decl-btn-pdf" onclick="declGerarPDF()" type="button">⬇ Gerar PDF</button>
+        <button class="decl-btn-close" onclick="fecharModalDeclaracao()" type="button">✕ Fechar</button>
+      </div>
+    </div>
+
+    <!-- FORM WRAP -->
+    <div class="decl-form-wrap" id="declFormWrap">
+
+      <!-- LOCALIDADE -->
+      <div class="decl-card">
+        <div class="decl-card-header">📍 Localidade</div>
+        <div class="decl-loc-wrap">
+          <select id="decl_localidade">
+            <option value="">— Selecione a localidade —</option>
+            <option value="Henri Dunant - SP">Henri Dunant - SP</option>
+            <option value="DC Lapa - SP">DC Lapa - SP</option>
+            <option value="DC Ingleses - SP" selected>DC Ingleses - SP</option>
+            <option value="DC Brasília - DF">DC Brasília - DF</option>
+            <option value="DC Vitória - ES">DC Vitória - ES</option>
+            <option value="DC Mackenzie - RJ">DC Mackenzie - RJ</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TIPO DE OPERAÇÃO -->
+      <div class="decl-card">
+        <div class="decl-card-header">🔄 Tipo de Operação</div>
+        <div class="decl-op-grid">
+          <div class="decl-op-btn entrada" id="decl-btn-entrada" onclick="declSetOperacao('entrada')">⬇ ENTRADA de Materiais</div>
+          <div class="decl-op-btn saida active" id="decl-btn-saida" onclick="declSetOperacao('saida')">⬆ SAÍDA de Materiais</div>
+        </div>
+      </div>
+
+      <!-- REMETENTE / EMITENTE -->
+      <div class="decl-card">
+        <div class="decl-card-header">🏢 Remetente / Emitente</div>
+        <div class="decl-card-body">
+          <div class="decl-row">
+            <div class="decl-field" style="flex:2"><label>Nome / Razão Social</label><input type="text" id="decl_razao_social" value="CLARO S/A"></div>
+            <div class="decl-field"><label>C.N.P.J/MF</label><input type="text" id="decl_cnpj" value="40.432.544/0843-08"></div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-field" style="flex:2"><label>Endereço</label><input type="text" id="decl_endereco" value="Rua dos Ingleses, 600"></div>
+            <div class="decl-field"><label>Bairro</label><input type="text" id="decl_bairro" value="MORRO DOS INGLESES"></div>
+            <div class="decl-field" style="flex:0 0 120px"><label>CEP</label><input type="text" id="decl_cep" value="01329-904"></div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-field"><label>Município</label><input type="text" id="decl_municipio" value="SÃO PAULO"></div>
+            <div class="decl-field"><label>Fone / Fax</label><input type="text" id="decl_fone" value="(11) 2121-2886"></div>
+            <div class="decl-field" style="flex:0 0 80px"><label>UF</label><input type="text" id="decl_uf" value="SP"></div>
+            <div class="decl-field"><label>Contato</label><input type="text" id="decl_contato" value="DATA CENTER"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DADOS DO SOLICITANTE -->
+      <div class="decl-card">
+        <div class="decl-card-header">👤 Dados do Solicitante / Permissionário</div>
+        <div class="decl-card-body">
+          <div class="decl-row">
+            <div class="decl-field" style="flex:2"><label>Nome Completo</label><input type="text" id="decl_nome_completo" placeholder="Nome do portador"></div>
+            <div class="decl-field"><label>Identidade (RG)</label><input type="text" id="decl_identidade" placeholder="00.000.000-0"></div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-field"><label>E-mail</label><input type="email" id="decl_email" placeholder="email@empresa.com"></div>
+            <div class="decl-field"><label>Telefone</label><input type="tel" id="decl_telefone" placeholder="(11) 00000-0000"></div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-field"><label>Número do Chamado</label><input type="text" id="decl_chamado" placeholder="INC-000000"></div>
+            <div class="decl-field"><label>Data de Saída</label><input type="date" id="decl_data_saida"></div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-field w-full"><label>Observações</label><textarea id="decl_observacoes" placeholder="Informações adicionais..."></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DADOS DO MATERIAL -->
+      <div class="decl-card">
+        <div class="decl-card-header">📼 Dados do Material</div>
+        <div class="decl-card-body" style="padding-bottom:10px">
+          <table class="decl-mat-table">
+            <thead>
+              <tr>
+                <th style="width:32px">#</th>
+                <th>BARCODE</th>
+                <th>LACRE</th>
+                <th style="width:32px"></th>
+              </tr>
+            </thead>
+            <tbody id="decl-material-tbody"></tbody>
+          </table>
+          <button class="decl-btn-add-row" onclick="declAdicionarLinha()" type="button">＋ Adicionar linha</button>
+        </div>
+      </div>
+
+      <!-- ENDEREÇOS -->
+      <div class="decl-card">
+        <div class="decl-card-header" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>🗺 Endereços das Localidades Data Center</span>
+          <div style="display:flex;gap:6px;">
+            <button type="button" onclick="declAddrAddRow()" style="background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:6px;padding:3px 12px;font-size:12px;font-weight:700;cursor:pointer;min-height:unset;">+ Adicionar</button>
+            <button type="button" onclick="declAddrSave()" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:3px 12px;font-size:12px;font-weight:700;cursor:pointer;min-height:unset;">💾 Salvar</button>
+          </div>
+        </div>
+        <div class="decl-card-body" style="padding:0;overflow-x:auto">
+          <table class="decl-addr-table" id="declAddrTable">
+            <thead><tr><th>SITE</th><th>ENDEREÇO</th><th>Nº</th><th>COMPLEMENTO</th><th>BAIRRO</th><th>CEP</th><th>CIDADE</th><th>UF</th><th>TELEFONE</th><th style="width:36px"></th></tr></thead>
+            <tbody id="declAddrTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /decl-form-wrap -->
+
+    <!-- STATUS BAR -->
+    <div class="decl-status-bar">
+      <span>Claro Empresas — Declaração de Transporte de Fitas LTO</span>
+      <span id="decl-status-count">0 item(s) com barcode</span>
+    </div>
+
+    <!-- CONFIRM OVERLAY -->
+    <div class="decl-overlay-confirm" id="declOverlay">
+      <div class="decl-modal-inner">
+        <h3>⬇ Gerar PDF</h3>
+        <p>O PDF será gerado com todas as informações preenchidas, no layout do documento original.</p>
+        <div class="decl-modal-btns">
+          <button class="btn-confirm" onclick="declConfirmarPDF()" type="button">Confirmar e Baixar</button>
+          <button class="btn-cancel2" onclick="document.getElementById('declOverlay').classList.remove('show')" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /decl-box -->
+</div><!-- /modalDeclaracao -->
+<footer>© 2026 Claro Empresas — Sistema interno corporativo.<br>Uso restrito. Dados armazenados localmente no navegador.</footer><script src="js/main.js"></script>
+</body>
+</html>
